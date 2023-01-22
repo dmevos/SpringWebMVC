@@ -7,6 +7,7 @@ import ru.osipov.model.Post;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 // Stub
 @Repository
@@ -15,11 +16,15 @@ public class PostRepository {
     private static final ConcurrentHashMap<Long, Post> repo = new ConcurrentHashMap<>();
 
     public List<Post> all() {
-        return new ArrayList<>(repo.values());
+        var tmp = new ArrayList<>(repo.values());
+        return tmp.stream().filter(post -> !post.isRemoved()).collect(Collectors.toList());
     }
 
     public Optional<Post> getById(long id) {
-        return Optional.ofNullable(repo.get(id));
+        if (!repo.get(id).isRemoved()) return Optional.ofNullable(repo.get(id));
+        else {
+            throw new NotFoundException("Жопа");
+        }
     }
 
     public Post save(Post post) {
@@ -29,15 +34,17 @@ public class PostRepository {
             return post;
         } else {
             if (repo.containsKey(post.getId())) {
-                repo.put(post.getId(), post);
-            } else {
-                throw new NotFoundException("Жопа");
-            }
+                if (!repo.get(post.getId()).isRemoved())
+                    repo.put(post.getId(), post);
+                else throw new NotFoundException("Объект уже был удален");
+            } else throw new NotFoundException("Жопа");
         }
         return post;
     }
 
     public void removeById(long id) {
-        repo.remove(id);
+        if (repo.containsKey(id)) {
+            repo.get(id).removePost();
+        }
     }
 }
