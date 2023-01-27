@@ -4,7 +4,9 @@ import org.springframework.stereotype.Repository;
 import ru.osipov.exception.NotFoundException;
 import ru.osipov.model.Post;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -19,25 +21,27 @@ public class PostRepository {
     }
 
     public Optional<Post> getById(long id) {
-        return Optional.ofNullable(repo.get(id));
+        if (repo.containsKey(id)) return Optional.ofNullable(repo.get(id));
+        else throw new NotFoundException("Показывать нечего. Поста с id=" + id + " нет!");
     }
 
     public Post save(Post post) {
-        if (post.getId() == 0) {
+        if (post.getId() == 0) { //создаем новую запись
             post.setId(counter.incrementAndGet());
             repo.put(counter.get(), post);
             return post;
-        } else {
+        } else { //должны обновить существующую запись
             if (repo.containsKey(post.getId())) {
                 repo.put(post.getId(), post);
-            } else {
-                throw new NotFoundException("Жопа");
+            } else {  //если же существующей записи нет
+                throw new NotFoundException("Пост не найден");
             }
         }
         return post;
     }
 
     public void removeById(long id) {
-        repo.remove(id);
+        if (repo.containsKey(id)) repo.remove(id);
+        else throw new NotFoundException("Удалять нечего. Поста с id=" + id + " нет!");
     }
 }
