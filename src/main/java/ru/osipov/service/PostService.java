@@ -21,15 +21,17 @@ public class PostService {
     }
 
     public Post getById(long id) {
-        return repository.getById(id).orElseThrow(NotFoundException::new);
+        return repository.getById(id).orElseThrow(() ->
+                new NotFoundException("При попытке получить пост с id=" + id + " произошла исключительная ситуация"));
     }
 
     public Post save(Post post) {
-        return repository.save(post);
+        return repository.save(post).orElseThrow(() ->
+                new NotFoundException("При попытке сохранить пост с id=" + post.getId() + " произошла исключительная ситуация"));
     }
 
     public void removeById(long id) {
-        repository.removeById(id);
+        repository.removeById(id).orElseThrow(() ->
+                new NotFoundException("При попытке удалить пост с id=" + id + " произошла исключительная ситуация"));
     }
 }
-

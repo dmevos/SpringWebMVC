@@ -1,4 +1,4 @@
-package ru.osipov.model;
+package ru.osipov.dto;
 
 public class PostDTO {
     private long id;
@@ -24,5 +24,4 @@ public class PostDTO {
     public void setContent(String content) {
         this.content = content;
     }
-
 }

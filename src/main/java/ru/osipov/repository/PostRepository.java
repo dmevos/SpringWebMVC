@@ -1,15 +1,15 @@
 package ru.osipov.repository;
 
 import org.springframework.stereotype.Repository;
-import ru.osipov.exception.NotFoundException;
 import ru.osipov.model.Post;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
-// Stub
 @Repository
 public class PostRepository {
     private static final AtomicLong counter = new AtomicLong(0);
@@ -21,30 +21,26 @@ public class PostRepository {
     }
 
     public Optional<Post> getById(long id) {
-        if (!repo.get(id).isRemoved()) return Optional.ofNullable(repo.get(id));
-        else {
-            throw new NotFoundException("Жопа");
-        }
+        if (repo.get(id) == null) return Optional.empty();
+        else return Optional.ofNullable(repo.get(id).isRemoved() ? null : repo.get(id));
     }
 
-    public Post save(Post post) {
-        if (post.getId() == 0) {
+    public Optional<Post> save(Post post) {
+        if (post.getId() == 0) { //создаем новую запись
             post.setId(counter.incrementAndGet());
             repo.put(counter.get(), post);
-            return post;
-        } else {
-            if (repo.containsKey(post.getId())) {
-                if (!repo.get(post.getId()).isRemoved())
-                    repo.put(post.getId(), post);
-                else throw new NotFoundException("Объект уже был удален");
-            } else throw new NotFoundException("Жопа");
-        }
-        return post;
+            return Optional.of(post);
+        } else  //должны обновить существующую или неудаленную запись, а если не существует или удалена - вернуть empty
+            if (repo.containsKey(post.getId()) && !repo.get(post.getId()).isRemoved()) {
+                repo.put(post.getId(), post);
+                return Optional.of(post);
+            } else
+                return Optional.empty();
     }
 
-    public void removeById(long id) {
-        if (repo.containsKey(id)) {
-            repo.get(id).removePost();
-        }
+    public Optional<Post> removeById(long id) {
+        if (!repo.containsKey(id) || repo.get(id).isRemoved()) return Optional.empty();
+        repo.get(id).removePost();
+        return Optional.of(repo.get(id));
     }
 }
