@@ -9,4 +9,7 @@ public class PostMapper {
     public PostDTO mapToPostDTO(Post post) {
         return new PostDTO(post.getId(), post.getContent());
     }
+    public Post mapToPost(PostDTO postDTO){
+        return new Post(postDTO.getId(), postDTO.getContent());
+    }
 }

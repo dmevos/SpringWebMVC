@@ -31,9 +31,9 @@ public class PostService {
                 new NotFoundException("При попытке получить пост с id=" + id + " произошла исключительная ситуация")));
     }
 
-    public PostDTO save(Post post) {
-        return mapper.mapToPostDTO(repository.save(post).orElseThrow(() ->
-                new NotFoundException("При попытке сохранить пост с id=" + post.getId() + " произошла исключительная ситуация")));
+    public Post save(PostDTO post) {
+        return repository.save(mapper.mapToPost(post)).orElseThrow(() ->
+                new NotFoundException("При попытке сохранить пост с id=" + post.getId() + " произошла исключительная ситуация"));
     }
 
     public void removeById(long id) {
