@@ -27,7 +27,7 @@ public class PostController {
     }
 
     @PostMapping
-    public Post save(@RequestBody PostDTO post) {
+    public PostDTO save(@RequestBody Post post) {
         return service.save(post);
     }
 
